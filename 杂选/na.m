@@ -1,0 +1,549 @@
+% 1.1
+%%1.1.1
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+figure('name','1.1.1')
+imshow(f)
+imwrite(gf,'1_3_1.jpg')
+%%1.1.2
+figure('name','1.1.2')
+imshow(gf)
+
+%1.2
+%%1.2.1
+whos f
+%%1.2.2
+whos gf
+%%1.3.1
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+gf = rgb2gray(f);
+figure('name','1.3.1')
+imshow(gf)
+
+%%1.3.2
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+gb = im2bw(gf, 0.4);
+figure('name','1.3.2')
+imshow(gb)
+%2.1
+%%2.1.1
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+g1 = imadjust(gf,[0,1],[1,0]);
+figure('name','2.1.1-1')
+imshow(g1)
+
+g2 = imadjust(gf, [0.3, 0.55], [0,1]);
+figure('name','2.1.1-2')
+imshow(g2)
+
+g3 = imadjust(gf, [0, 0.3], [0, 1]);
+figure('name','2.1.1-3')
+imshow(g3)
+
+g4 = imadjust(gf, [], [], 2);
+figure('name','2.1.1-4')
+imshow(g4)
+
+%%2.1.2
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+g1 = im2uint8(mat2gray(log(1+double(gf))));
+figure('name','2.1.2-1')
+imshow(g1)
+
+L = imadjust(gf,[],[50/255;150/255]);
+J = imadjust(L,[50/255;150/255],[20/255;230/255]);
+figure('name','2.1.2-2')
+imshow(L)
+figure('name','2.1.2-3')
+imshow(J)
+
+
+%2.2
+%%2.2.1
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+h1 = [0 1 0;1 -8 1;1 1 1];
+g1 = gf - imfilter(gf, h1);
+figure('name','2.2.1-1')
+imshow(g1,[])
+
+h2 = [1 1 1;1 -8 1;1 1 1];
+g2 = gf - imfilter(gf,h2);
+figure('name','2.2.1-2')
+imshow(g2,[])
+%%2.2.2
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+fn = imnoise(gf,'salt & pepper',0.2);
+figure('name','2.2.2-1')
+imshow(fn)
+
+gm = medfilt2(fn);
+figure('name','2.2.2-2')
+imshow(gm)
+
+gms = medfilt2(fn,'symmetric');
+figure('name','2.2.2-3')
+imshow(gms)
+
+
+%3.1
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+[gf,revertclass] = tofloat(gf);
+PQ = paddedsize(size(gf));
+[U,V] = dftuv(PQ(1),PQ(2));
+D = hypot(U,V);
+D0 = 0.05*PQ(2);
+F = fft2(gf,PQ(1),PQ(2));
+H = exp(-(D.^2)/(2*(D0^2)));
+g = dftfilt(gf,H);
+g = revertclass(g);
+figure('name','3.1-1')
+imshow(fftshift(H))
+figure('name','3.1-2')
+imshow(log(1+abs(fftshift(F))),[])
+figure('name','3.1-3')
+imshow(g)
+
+%%3.2
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+PQ = paddedsize(size(gf));
+D0 = 0.05*PQ(1);
+H = hpfilter("gaussian",PQ(1),PQ(2),D0);
+g = dftfilt(gf,H);
+figure('name','3.2')
+imshow(g)
+
+%3.3
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+PQ = paddedsize(size(gf));
+D0 = 0.05*PQ(1);
+HBW = hpfilter('btw',PQ(1),PQ(2),D0,2);
+H = 0.5 + 2*HBW;
+gbw = dftfilt(gf,HBW);
+gbw = gscale(gbw);
+ghf = dftfilt(gf,H);
+ghf = gscale(ghf);
+ghe = histeq(ghf,256);
+figure('name','3.3-1')
+imshow(ghf)
+figure('name','3.3-2')
+imshow(ghe)
+
+%4.1
+%4.1.1
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+I = rgb2gray(f);
+[m,n] = size(I);
+F = fftshift(fft2(I));
+k = 0.005;
+for u=1:m
+    for v=1:n
+        H(u,v)=exp((-k)*(((u-m/2)^2+(v-n/2)^2)^(5/6)));
+        
+    end
+end
+G = F.*H;
+I0 = real(ifft2(fftshift(G)));
+I1 = imnoise(uint8(I0),'gaussian',0,0.001);
+figure('name','4.1.1')
+imshow(uint8(I1))
+title('模糊退化且添加高斯噪声的图像')
+
+%%4.1.3
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+I = rgb2gray(f);
+LEN = 21;
+THETA = 11;
+PSF = fspecial('motion',LEN,THETA);
+blurred = imfilter(I,PSF,'conv','circular');
+wnr = deconvwnr(blurred,PSF);
+figure('name','4.1.3')
+imshow(wnr)
+
+%4.2
+clear
+f = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+gf = rgb2gray(f);
+f = checkerboard(50);
+s = 0.8;
+theta  = pi/6;
+T = [s*cos(theta) s*sin(theta) 0;-s*sin(theta) s*cos(theta) 0;0 0 1 ];
+tform = maketform('affine',T);
+g = imtransform(gf,tform);
+figure('name','4.2')
+imshow(g)
+
+%5.1
+%%5.1.1
+clear
+
+RGB = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+[R_i,map] = rgb2ind(RGB,8);
+figure('name','5.1.1-1')
+imshow(R_i,map)
+[R_i,map] = rgb2ind(RGB,16);
+figure('name','5.1.1-2')
+imshow(R_i,map)
+[R_i,map] = rgb2ind(RGB,32);
+figure('name','5.1.1-3')
+imshow(R_i,map)
+[R_i,map] = rgb2ind(RGB,256);
+figure('name','5.1.1-4')
+imshow(R_i,map)
+
+%%5.1.2
+PR = RGB(:,:,1);
+PG = RGB(:,:,2);
+PB = RGB(:,:,3);
+figure('name','5.1.2-1')
+imshow(PR)
+figure('name','5.1.2-2')
+imshow(PG)
+figure('name','5.1.2-3')
+imshow(PB)
+
+%%5.2.1
+clear
+RGB = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+RGB_hsv = rgb2hsv(RGB);
+figure('name','5.2.1-1')
+imshow(RGB_hsv)
+
+%%5.2.2
+H = RGB_hsv(:,:,1);
+S = RGB_hsv(:,:,2);
+V = RGB_hsv(:,:,3);
+figure('name','5.2.2-1')
+imshow(H)
+figure('name','5.2.2-2')
+imshow(S)
+figure('name','5.2.2-3')
+imshow(V)
+
+
+%5.3.1
+clear
+RGB = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+
+RGB_ntsc = rgb2ntsc(RGB);
+figure('name','5.3.1-1')
+imshow(RGB_ntsc)
+Y = RGB_ntsc(:,:,1);
+I = RGB_ntsc(:,:,2);
+Q = RGB_ntsc(:,:,3);
+figure('name','5.3.1-2')
+imshow(Y)
+figure('name','5.3.1-3')
+imshow(I)
+figure('name','5.3.1-4')
+imshow(Q)
+
+%%5.4.1
+clear
+RGB = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+
+RGB_ycbcr = rgb2ycbcr(RGB);
+figure('name','5.4.1-1')
+imshow(RGB_ycbcr)
+Y= RGB_ycbcr(:,:,1);
+Cb = RGB_ycbcr(:,:,2);
+Cr = RGB_ycbcr(:,:,3);
+figure('name','5.4.1-2')
+imshow(Y)
+figure('name','5.4.1-3')
+imshow(Cb)
+figure('name','5.4.1-4')
+imshow(Cr)
+
+%%5.5.1
+clear
+RGB = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+
+RGB_cmy = imcomplement(RGB);
+figure('name','5.5.1-1')
+imshow(RGB_cmy)
+C= RGB_cmy(:,:,1);
+M = RGB_cmy(:,:,2);
+Y = RGB_cmy(:,:,3);
+figure('name','5.5.1-2')
+imshow(C)
+figure('name','5.5.1-3')
+imshow(M)
+figure('name','5.5.1-4')
+imshow(Y)
+
+%%5.6.1
+clear
+RGB = imread("D:\Big_OneDrive\OneDrive - Capital University of Serbia\Desktop\原图.png");
+
+RGB_hsi = rgb2hsi(RGB);
+figure('name','5.6.1-1')
+imshow(RGB_hsi)
+H = RGB_hsi(:,:,1);
+S = RGB_hsi(:,:,2);
+I = RGB_hsi(:,:,3);
+figure('name','5.6.1-2')
+imshow(H)
+figure('name','5.6.1-3')
+imshow(S)
+figure('name','5.6.1-4')
+imshow(I)
+
+
+
+%
+function [out,revertclass] = tofloat(inputimage)
+%Copy the book of Gonzales
+identify = @(x) x;
+tosingle = @im2single;
+table = {'uint8',tosingle,@im2uint8
+'uint16',tosingle,@im2uint16
+'logical',tosingle,@logical
+'double',identify,identify
+'single',identify,identify};
+classIndex = find(strcmp(class(inputimage),table(:,1)));
+if isempty(classIndex)
+error('不支持的图像类型');
+end
+out = table{classIndex,2}(inputimage);
+revertclass = table{classIndex,3};
+end
+%
+
+
+%
+function PQ = paddedsize(AB, CD, PARAM)
+% 计算填充尺寸以供基于FFT的滤波器
+% PQ = PADDEDSIZE(AB),AB = [A B], PQ = 2 * AB
+%
+% PQ = PADDEDSIZE(AB, 'PWR2')， PQ（1） = PQ（2） = 2 ^ nextpow2(2 * m), m =
+% MAX(AB).
+% 
+% PQ = PADDEDSIZE(AB, CD)，AB = [A B], CD = [C D]
+%
+%  PQ = PADDEDSIZE(AB, CD, 'PWR2')， PQ（1） = PQ（2） = 2 ^ nextpow2(2 * m), m =
+% MAX([AB CD]).
+
+if nargin == 1
+    PQ = 2 * AB;
+elseif nargin == 2 & ~ischar(CD)
+    PQ = AB + CD -1;
+    PQ = 2 * ceil(PQ / 2);  % ceil（N）返回比N大的最小整数，为了避免出现奇数，因为处理偶数数组快
+elseif nargin == 2
+    m = max(AB);
+    P = 2 ^ nextpow2(2 * m);  % nextpow2（N）返回第一个P，使得2. ^ P> = abs（N）。 
+    % 对于FFT运算，找到最接近两个序列长度的2 的幂次方通常很有用。
+    PQ = [P, P];
+elseif nargin == 3
+    m = max([AB CD]);
+    P = 2 ^ nextpow2(2 * m);
+    PQ = [P, P];
+else
+    error('Wrong number of input')
+end
+end
+%
+
+
+%
+function [ U,V ] = dftuv( M, N )
+%DFTUV 实现频域滤波器的网格函数
+%   Detailed explanation goes here
+u = 0:(M - 1);
+v = 0:(N - 1);
+idx = find(u > M/2); %找大于M/2的数据
+u(idx) = u(idx) - M; %将大于M/2的数据减去M
+idy = find(v > N/2);
+v(idy) = v(idy) - N;
+[V, U] = meshgrid(v, u);      
+
+end
+%
+
+
+%
+function g = dftfilt(f,H)
+% 此函数可接受输入图像和一个滤波函数，可处理所有的
+% 滤波细节并输出经滤波和剪切后的图像
+% 将此.m文件保存在一个文件夹
+% file->set path->add with subfolder
+% 将你函数所在文件夹添加到搜索路径
+% save就可以将其添加到你的函数库了
+F=fft2(f,size(H,1),size(H,2));
+g=real(ifft2(H.*F));
+g=g(1:size(f,1),1:size(f,2));
+end
+%
+
+
+%
+function H = hpfilter(type, M, N, D0, n)
+% LPFILTER Computes frequency domain highpass filters
+%   H = HPFILTER(TYPE, M, N, D0, n) creates the transfer function of a
+%   highpass filter, H, of the specified TYPE and size (M-by-N). To view the
+%   filter as an image or mesh plot, it should be centered using H =
+%   fftshift(H)
+%   Valid value for TYPE, D0, and n are:
+%   'ideal' Ideal highpass filter with cutoff frequency D0. n need not be
+%           supplied. D0 must be positive.
+%   'btw'   Butterworth highpass filter of order n, and cutoff D0. The
+%           default value for n is 1.0. D0 must be positive.
+%   'gaussian'Gaussian highpass filter with cutoff (standard deviation) D0.
+%           n need not be supplied. D0 must be positive.
+% The transfer function Hhp of highpass filter is 1 - Hlp, where Hlp is the
+% transfer function of the corresponding lowpass filter. Thus, we can use
+% function lpfilter to generate highpass filters.
+%
+% 计算给定类型（理想、巴特沃兹、高斯）的频域高通滤波器
+
+% Use function dftuv to set up the meshgrid arrays needed for computing the
+% required distances.
+if nargin == 4
+    n = 1;
+end
+Hlp = lpfilter(type, M, N, D0, n);
+H = 1 - Hlp;      
+end
+%
+
+
+%
+function [ H, D ] = lpfilter( type,M,N,D0,n )
+%LPFILTER creates the transfer function of a lowpass filter.
+%   Detailed explanation goes here
+
+%use function dftuv to set up the meshgrid arrays needed for computing 
+%the required distances.
+[U, V] = dftuv(M,N);
+ 
+%compute the distances D(U,V)
+D = sqrt(U.^2 + V.^2);
+
+%begin filter computations
+switch type
+    case 'ideal'
+        H = double(D <= D0);
+    case 'btw'
+        if nargin == 4
+            n = 1;
+        end
+        H = 1./(1+(D./D0).^(2*n));
+    case 'gaussian'
+        H = exp(-(D.^2)./(2*(D0^2)));
+    otherwise 
+        error('Unkown filter type');
+
+end
+end
+
+%
+
+
+%
+function g=gscale(f,varargin)
+if length(varargin)==0
+  method='full8';
+else method=varargin{1};
+end
+if strcmp(class(f),'double')&(max(f(:))>1 | min(f(:))<0)
+   f=mat2gray(f);
+end
+
+switch method
+case 'full8'
+        g=im2uint8(mat2gray(double(f)));
+case 'full16'
+        g=im2uint16(mat2gray(double(f)));
+case 'minmax'
+       low = varargin{2};high = varargin{3};
+       if low>1 | low<0 |high>1 | high<0
+             error('Parameters low and high must be in the range [0,1]')
+       end
+       if strcmp(class(f),'double')
+            low_in=min(f(:));
+            high_in=max(f(:));
+       elseif  strcmp(class(f),'uint8')
+            low_in=double(min(f(:)))./255;
+            high_in=double(max(f(:)))./255;
+       elseif   strcmp(class(f),'uint16')
+            low_in=double(min(f(:)))./65535;
+            high_in=double(max(f(:)))./65535;
+       end
+       
+       g=imadjust(f,[low_in high_in],[low high]);
+otherwise
+       error('Unknown method')
+end
+end
+%
+
+%
+function hsi = rgb2hsi(rgb) 
+%RGB2HSI Converts an RGB image to HSI. 
+%   HSI = RGB2HSI(RGB) converts an RGB image to HSI. The input image 
+%   is assumed to be of size M-by-N-by-3, where the third dimension 
+%   accounts for three image planes: red, green, and blue, in that 
+%   order. If all RGB component images are equal, the HSI conversion 
+%   is undefined. The input image can be of class double (with values 
+%   in the range [0, 1]), uint8, or uint16.  
+% 
+%   The output image, HSI, is of class double, where: 
+%     hsi(:, :, 1) = hue image normalized to the range [0, 1] by 
+%                    dividing all angle values by 2*pi.  
+%     hsi(:, :, 2) = saturation image, in the range [0, 1]. 
+%     hsi(:, :, 3) = intensity image, in the range [0, 1]. 
+
+%   Copyright 2002-2004 R. C. Gonzalez, R. E. Woods, & S. L. Eddins 
+%   Digital Image Processing Using MATLAB, Prentice-Hall, 2004 
+%   $Revision: 1.4 $  $Date: 2003/09/29 15:21:54 $ 
+
+% Extract the individual component immages. 
+rgb = im2double(rgb); 
+r = rgb(:, :, 1); 
+g = rgb(:, :, 2); 
+b = rgb(:, :, 3); 
+
+% Implement the conversion equations. 
+num = 0.5*((r - g) + (r - b)); 
+den = sqrt((r - g).^2 + (r - b).*(g - b)); 
+theta = acos(num./(den + eps)); 
+
+H = theta; 
+H(b > g) = 2*pi - H(b > g); 
+H = H/(2*pi); 
+
+num = min(min(r, g), b); 
+den = r + g + b; 
+den(den == 0) = eps; 
+S = 1 - 3.* num./den; 
+
+H(S == 0) = 0; 
+
+I = (r + g + b)/3; 
+
+% Combine all three results into an hsi image. 
+hsi = cat(3, H, S, I); 
+end
+%
